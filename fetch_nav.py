@@ -1,15 +1,33 @@
 import requests
 import pandas as pd
 
-url = "https://api.mfapi.in/mf/125497"
+schemes = {
+    "HDFC_Top100_Direct": "125497",
+    "SBI_Bluechip": "119551",
+    "ICICI_Bluechip": "120503",
+    "Nippon_Large_Cap": "118632",
+    "Axis_Bluechip": "119092",
+    "Kotak_Bluechip": "120841"
+}
 
-response = requests.get(url)
+for scheme_name, scheme_id in schemes.items():
+    url = f"https://api.mfapi.in/mf/{scheme_id}"
 
-data = response.json()
+    print(f"Fetching {scheme_name}...")
 
-df = pd.DataFrame(data["data"])
+    response = requests.get(url)
 
-df.to_csv("data/raw/hdfc_top100_nav.csv", index=False)
+    if response.status_code == 200:
+        data = response.json()
 
-print("CSV saved successfully!")
-print(df.head())
+        df = pd.DataFrame(data["data"])
+
+        file_path = f"data/raw/{scheme_name}.csv"
+        df.to_csv(file_path, index=False)
+
+        print(f"Saved: {file_path}")
+
+    else:
+        print(f"Failed to fetch {scheme_name}")
+
+print("\nAll NAV data downloaded successfully!")
